@@ -3,6 +3,7 @@ package com.bouncythings.test_bouncing_things;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -40,7 +41,9 @@ public class TaskBall {
     collision detection can resume.
      */
 
-    private boolean previouslyTouching;
+    //Number of circles overlapped with it
+    private ArrayList<TaskBall> tbOverlaps = new ArrayList<TaskBall>();
+    //private int overlaps;
     private boolean previouslyWallTouching;
 
     Random rand = new Random();
@@ -60,7 +63,7 @@ public class TaskBall {
         setRadius(priority);
         setVelocity(priority);
         setCoords();
-        setPreviouslyTouching(false);
+//        setOverlaps(0);
         setPreviouslyWallTouching(false);
     }
 
@@ -76,13 +79,32 @@ public class TaskBall {
         this.previouslyWallTouching = previouslyWallTouching;
     }
 
-    public boolean isPreviouslyTouching() {
-        return previouslyTouching;
+    public ArrayList<TaskBall> getTbOverlaps() {
+        return tbOverlaps;
     }
 
-    public void setPreviouslyTouching(boolean previouslyTouching) {
-        this.previouslyTouching = previouslyTouching;
+    public void pushTbOverlaps(TaskBall overlap) {
+        this.tbOverlaps.add(overlap);
     }
+
+    public void removeTbOverlaps(TaskBall overlap) {
+        this.tbOverlaps.remove(overlap);
+    }
+
+
+//    public int getOverlaps() {
+//        return overlaps;
+//    }
+//
+//    public void incOverlaps() {
+//        this.overlaps++;
+//    }
+//    public void decOverlaps() {
+//        this.overlaps--;
+//    }
+//    private void setOverlaps(int overlaps){
+//        this.overlaps = overlaps;
+//    }
 
     private void setVelocity(int priority){
         xVelocity = 100/priority;

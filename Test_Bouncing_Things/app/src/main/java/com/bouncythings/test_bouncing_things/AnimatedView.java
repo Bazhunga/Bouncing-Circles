@@ -29,21 +29,24 @@ public class AnimatedView extends ImageView {
 
     private Handler h;
     private final int FRAME_RATE =20;
-    TaskBall circ1;
-    TaskBall circ2;
-    TaskBall circ3;
+    TaskBall circa;
+    TaskBall circb;
+    TaskBall circc;
+    TaskBall circd;
     ArrayList<TaskBall> taskBallList = new ArrayList();
 
     public AnimatedView(Context context, AttributeSet attrs)  {
         super(context, attrs);
         mContext = context;
         h = new Handler();
-        circ1 = new TaskBall("Sample", "sam", 10, 0x709EF4, mContext);
-        circ2 = new TaskBall("Simple", "sam", 8, 0x709EF4, mContext);
-        //circ3 = new TaskBall("Simple", "sam", 6, 0x709EF4, mContext);
-        taskBallList.add(circ1);
-        taskBallList.add(circ2);
-        //taskBallList.add(circ3);
+        circa = new TaskBall("Sample", "sam", 4, 0x709EF4, mContext);
+        circb = new TaskBall("Simple", "sam", 3, 0x709EF4, mContext);
+        circc = new TaskBall("Simple", "sam", 2, 0x709EF4, mContext);
+        circd = new TaskBall("Simple", "sam", 8, 0x709EF4, mContext);
+        taskBallList.add(circa);
+        taskBallList.add(circb);
+        taskBallList.add(circc);
+        taskBallList.add(circd);
 
     }
     private Runnable r = new Runnable() {
@@ -65,12 +68,15 @@ public class AnimatedView extends ImageView {
 
         //You need to set the bounds of all the circ objects before drawing them
         //Need to adjust the placeDrawables such that the x and y are properties of objects
-        placeDrawables(circ1);
-        placeDrawables(circ2);
 
-        //Draw them and watch them bounce
-        circ1.getCirc().draw(c);
-        circ2.getCirc().draw(c);
+        for (int i = 0; i < taskBallList.size(); i++ ){
+            placeDrawables(taskBallList.get(i));
+        }
+
+        //Draw them
+        for (int i = 0; i < taskBallList.size(); i++ ){
+            taskBallList.get(i).getCirc().draw(c);
+        }
         detectCollision();
 
         //Ensure proper placements so there are no overlaps
@@ -91,27 +97,31 @@ public class AnimatedView extends ImageView {
 
         //Coordinates of the ball centres
         int x1, y1, x2, y2;
+        TaskBall circ1, circ2;
 
         for (int i = 0; i < taskBallList.size(); i++){
             for (int j = i + 1; j < taskBallList.size(); j++){
-                x1 = taskBallList.get(i).getCentre()[0];
-                y1 = taskBallList.get(i).getCentre()[1];
-                x2 = taskBallList.get(j).getCentre()[0];
-                y2 = taskBallList.get(j).getCentre()[1];
-                distanceApart = calcDistanceApart(x1, y1, x2, y2);
-                touchingDistance = getTouchingDistance(taskBallList.get(i), taskBallList.get(j));
+                circ1 = taskBallList.get(i);
+                circ2 = taskBallList.get(j);
 
-                if (distanceApart <= touchingDistance && (circ1.isPreviouslyTouching() != true) && (circ1.isPreviouslyTouching() != true)) {
+                x1 = circ1.getCentre()[0];
+                y1 = circ1.getCentre()[1];
+                x2 = circ2.getCentre()[0];
+                y2 = circ2.getCentre()[1];
+                distanceApart = calcDistanceApart(x1, y1, x2, y2);
+                touchingDistance = getTouchingDistance(circ1, circ2);
+
+                if (distanceApart <= touchingDistance && (!(circ1.getTbOverlaps().contains(circ2))) && (!(circ2.getTbOverlaps().contains(circ1)))) {// (taskBallList.get(i).getOverlaps() == 0) && (taskBallList.get(j).getOverlaps() == 0)) {
                     calcCollisionSpeed(circ1, circ2);
-                    circ1.setPreviouslyTouching(true);
-                    circ2.setPreviouslyTouching(true);
+                    circ1.pushTbOverlaps(circ2);
+                    circ2.pushTbOverlaps(circ1);
                 }
-                else if (distanceApart <= touchingDistance && (circ1.isPreviouslyTouching() != false) && (circ1.isPreviouslyTouching() != false)){
+                else if (distanceApart <= touchingDistance && (circ1.getTbOverlaps().contains(circ2)) && (circ2.getTbOverlaps().contains(circ1))){
                     //do nothing
                 }
                 else if (distanceApart >= touchingDistance) {
-                    circ1.setPreviouslyTouching(false);
-                    circ2.setPreviouslyTouching(false);
+                    circ1.removeTbOverlaps(circ2);
+                    circ2.removeTbOverlaps(circ1);
                 }
 
             }
