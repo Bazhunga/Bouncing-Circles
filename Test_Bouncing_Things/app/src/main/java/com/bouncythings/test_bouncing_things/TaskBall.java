@@ -3,6 +3,8 @@ package com.bouncythings.test_bouncing_things;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
+import java.util.Random;
+
 /**
  * Created by kevin on 1/26/15.
  */
@@ -23,9 +25,26 @@ public class TaskBall {
     private int rightX;
     private int bottomY;
 
-    private int centre;
+    private int [] centre = new int [2] ; //[x, y]
     private int xVelocity;
     private int yVelocity;
+
+    /*
+    This flag is used to detect whether the circle has overlapped with a previous circle. Upon overlapping,
+    if the circs do not move apart immediately, their velocities will continue to flip back and forth
+    between positive and negative.
+
+    When the pT flag is on, that means that the circle has previously experienced a collision. If on the
+    next redraw it experiences another collision, then we shall not reverse the direction and keep going
+    until we clear the overlap with the other circle. Then we can set the pT flag to off and regular
+    collision detection can resume.
+     */
+
+    private boolean previouslyTouching;
+    private boolean previouslyWallTouching;
+
+    Random rand = new Random();
+
 
     //Defining behaviour within the window
     //These will be the limits within which the ball can move
@@ -41,18 +60,65 @@ public class TaskBall {
         setRadius(priority);
         setVelocity(priority);
         setCoords();
+        setPreviouslyTouching(false);
+        setPreviouslyWallTouching(false);
+    }
+
+    public void setCentre(int[] centre) {
+        this.centre = centre;
+    }
+
+    public boolean isPreviouslyWallTouching() {
+        return previouslyWallTouching;
+    }
+
+    public void setPreviouslyWallTouching(boolean previouslyWallTouching) {
+        this.previouslyWallTouching = previouslyWallTouching;
+    }
+
+    public boolean isPreviouslyTouching() {
+        return previouslyTouching;
+    }
+
+    public void setPreviouslyTouching(boolean previouslyTouching) {
+        this.previouslyTouching = previouslyTouching;
     }
 
     private void setVelocity(int priority){
-        xVelocity = 30/priority;
-        yVelocity = 22/priority;
+        xVelocity = 100/priority;
+        yVelocity = 80/priority;
     }
     private void setCoords(){
-        leftX = 0;
-        topY = 0;
+        //Generate random x coordinate on screen
+        leftX = AnimatedView.maxWidth/2;
+        topY = AnimatedView.maxHeight/2;
         rightX = leftX + 2 * radius;
         bottomY = topY + 2 * radius;
+        findCentre();
     }
+
+    public void reverseBothVelocity(){
+        xVelocity = xVelocity * -1;
+        yVelocity = yVelocity * -1;
+    }
+
+    public void reverseXVelocity(){
+        xVelocity = xVelocity * -1;
+    }
+
+    public void reverseYVelocity(){
+        yVelocity = yVelocity * -1;
+    }
+
+    public void findCentre(){
+        //Note: Top left of screen is
+        //x-coordinate
+        centre[0] = leftX + radius;
+
+        //y-coordinate
+        centre[1] = topY + radius;
+    }
+
 
     public Drawable getCirc() {
         return circ;
@@ -137,14 +203,8 @@ public class TaskBall {
         bottomY = topY + 2 * radius;
     }
 
-
-
-    public int getCentre() {
+    public int [] getCentre() {
         return centre;
-    }
-
-    public void setCentre(int centre) {
-        this.centre = centre;
     }
 
     public int getxVelocity() {
